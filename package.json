@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://<username>.github.io/<repository-name>/",
+  "homepage": "https://TomMRiddle.github.io/istqb-ctfl-4.0-svenska/",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
