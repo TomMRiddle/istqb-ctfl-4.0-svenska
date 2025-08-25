@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://aistudiocdn.com/react@^19.1.1",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+        "react/": "https://aistudiocdn.com/react@^19.1.1/",
+        "react-markdown": "https://aistudiocdn.com/react-markdown@^10.1.0",
+        "vite": "https://aistudiocdn.com/vite@^7.1.3",
+        "remark-gfm": "https://aistudiocdn.com/remark-gfm@^4.0.1",
+        "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.1"
+      }
+    }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Syllabus & Glossary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Lato:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Noto+Sans:wght@400;600&family=Noto+Serif:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com/3.4.3"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'bg-primary': 'var(--color-bg-primary)',
+              'bg-secondary': 'var(--color-bg-secondary)',
+              'bg-tertiary': 'var(--color-bg-tertiary)',
+              'bg-interactive': 'var(--color-bg-interactive)',
+              'bg-interactive-hover': 'var(--color-bg-interactive-hover)',
+              'bg-active': 'var(--color-bg-active)',
+              'bg-tooltip': 'var(--color-bg-tooltip)',
+              'text-primary': 'var(--color-text-primary)',
+              'text-secondary': 'var(--color-text-secondary)',
+              'text-muted': 'var(--color-text-muted)',
+              'text-accent': 'var(--color-text-accent)',
+              'text-tooltip': 'var(--color-text-tooltip)',
+              'text-destructive': 'var(--color-text-destructive)',
+              'border-primary': 'var(--color-border-primary)',
+              'border-secondary': 'var(--color-border-secondary)',
+              'ring-accent': 'var(--color-ring-accent)',
+            },
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        /* Base Palette */
+        --color-bg-primary: #f8fafc; /* slate-50 */
+        --color-bg-secondary: #ffffff; /* white */
+        --color-bg-tertiary: #f1f5f9; /* slate-100 */
+        --color-bg-interactive: #e2e8f0; /* slate-200 */
+        --color-bg-interactive-hover: #cbd5e1; /* slate-300 */
+        --color-bg-active: #dbeafe; /* blue-100 */
+        --color-bg-tooltip: #1e293b; /* slate-800 */
+        
+        --color-text-primary: #0f172a; /* slate-900 */
+        --color-text-secondary: #475569; /* slate-600 */
+        --color-text-muted: #64748b; /* slate-500 */
+        --color-text-accent: #2563eb; /* blue-600 */
+        --color-text-tooltip: #f1f5f9; /* slate-100 */
+        --color-text-destructive: #ef4444; /* red-500 */
+
+        --color-border-primary: #e2e8f0; /* slate-200 */
+        --color-border-secondary: #cbd5e1; /* slate-300 */
+
+        --color-ring-accent: #3b82f6; /* blue-500 */
+
+        /* Prose (Typography) Palette */
+        --prose-body: var(--color-text-secondary);
+        --prose-headings: var(--color-text-primary);
+        --prose-links: var(--prose-body);
+        --prose-bold: var(--color-text-primary);
+        --prose-hr: var(--color-border-primary);
+        --prose-quotes: var(--color-text-primary);
+        --prose-quote-borders: var(--color-border-secondary);
+        --prose-captions: var(--color-text-muted);
+        --prose-code: var(--color-text-primary);
+        --prose-pre-code: var(--color-text-primary);
+        --prose-pre-bg: var(--color-bg-tertiary);
+
+        /* Typography Settings */
+        --font-family-body: 'Inter', sans-serif;
+        --font-base-rem: 1rem;
+        --font-line-height: 1.7;
+      }
+      html.dark {
+        /* Base Palette */
+        --color-bg-primary: #020617; /* slate-950 */
+        --color-bg-secondary: #0f172a; /* slate-900 */
+        --color-bg-tertiary: #1e293b; /* slate-800 */
+        --color-bg-interactive: #334155; /* slate-700 */
+        --color-bg-interactive-hover: #475569; /* slate-600 */
+        --color-bg-active: rgba(30, 64, 175, 0.5); /* blue-900/50 */
+        --color-bg-tooltip: #f1f5f9; /* slate-100 */
+
+        --color-text-primary: #f8fafc; /* slate-50 */
+        --color-text-secondary: #e2e8f0; /* slate-200 */
+        --color-text-muted: #94a3b8; /* slate-400 */
+        --color-text-accent: #60a5fa; /* blue-400 */
+        --color-text-tooltip: #1e293b; /* slate-800 */
+        --color-text-destructive: #f87171; /* red-400 */
+
+        --color-border-primary: #334155; /* slate-700 */
+        --color-border-secondary: #475569; /* slate-600 */
+
+        --color-ring-accent: #3b82f6; /* blue-500 */
+
+        /* Prose (Typography) Palette */
+        --prose-body: var(--color-text-secondary);
+        --prose-headings: var(--color-text-primary);
+        --prose-links: var(--prose-body);
+        --prose-bold: var(--color-text-primary);
+        --prose-hr: var(--color-border-primary);
+        --prose-quotes: var(--color-text-primary);
+        --prose-quote-borders: var(--color-border-secondary);
+        --prose-captions: var(--color-text-muted);
+        --prose-code: var(--color-text-primary);
+        --prose-pre-code: var(--color-text-primary);
+        --prose-pre-bg: var(--color-bg-secondary);
+      }
+      body {
+        background-color: var(--color-bg-primary);
+        color: var(--color-text-primary);
+        transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        font-family: var(--font-family-body);
+      }
+      .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 { color: var(--prose-headings); }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
