@@ -1,4 +1,5 @@
 
+
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { GlossaryTerm } from '../types';
 import GlossaryToc from './GlossaryToc';
@@ -179,7 +180,7 @@ const GlossaryView: React.FC<GlossaryViewProps> = ({
   }, [glossary]);
 
   return (
-    <div className="bg-bg-secondary rounded-lg shadow-lg h-full relative flex flex-col">
+    <div className="bg-bg-secondary md:rounded-lg md:shadow-lg h-full relative flex flex-col">
       {!isMobile && (
         <div 
           data-sticky-header
@@ -232,6 +233,7 @@ const GlossaryView: React.FC<GlossaryViewProps> = ({
               const isActive = term.id === activeTermId;
               const firstLetter = term.term.charAt(0).toUpperCase();
               const isFirstOfLetter = firstLetterTermIds.get(firstLetter) === term.id;
+
               return (
                 <React.Fragment key={term.id}>
                   {isFirstOfLetter && <div id={`glossary-${firstLetter}`} className="pt-2 -mt-2"></div>}

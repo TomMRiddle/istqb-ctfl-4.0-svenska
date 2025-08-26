@@ -413,7 +413,7 @@ const SyllabusView: React.FC<SyllabusViewProps> = ({
   }, [handleMarginMouseMove, handleMarginMouseUp]);
 
   return (
-    <div className="bg-bg-secondary rounded-lg shadow-lg h-full relative flex flex-col">
+    <div className="bg-bg-secondary md:rounded-lg md:shadow-lg h-full relative flex flex-col">
       {!isMobile && (
         <div 
           data-sticky-header

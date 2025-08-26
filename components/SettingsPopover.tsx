@@ -1,17 +1,13 @@
-import React, { useRef, useEffect } from 'react';
 
-// --- Types ---
-interface TypographySettings {
-  fontSize: number;
-  lineHeight: number;
-  fontFamily: string;
-}
+import React, { useRef, useEffect } from 'react';
+import { TypographySettings } from '../types';
 
 interface SettingsPopoverProps {
   isOpen: boolean;
   onClose: () => void;
   settings: TypographySettings;
   setSettings: React.Dispatch<React.SetStateAction<TypographySettings>>;
+  position?: 'top' | 'bottom';
 }
 
 // --- Constants ---
@@ -29,7 +25,7 @@ const FONT_OPTIONS: Record<string, { name: string; family: string }[]> = {
 };
 
 // --- Component ---
-const SettingsPopover: React.FC<SettingsPopoverProps> = ({ isOpen, onClose, settings, setSettings }) => {
+const SettingsPopover: React.FC<SettingsPopoverProps> = ({ isOpen, onClose, settings, setSettings, position = 'bottom' }) => {
   const popoverRef = useRef<HTMLDivElement>(null);
 
   // Close popover on click outside
@@ -40,7 +36,8 @@ const SettingsPopover: React.FC<SettingsPopoverProps> = ({ isOpen, onClose, sett
       }
     };
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      // Use a timeout to prevent the same click that opened it from closing it
+      setTimeout(() => document.addEventListener('mousedown', handleClickOutside), 0);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -51,13 +48,19 @@ const SettingsPopover: React.FC<SettingsPopoverProps> = ({ isOpen, onClose, sett
     return null;
   }
 
+  const baseClasses = "absolute w-72 bg-bg-secondary rounded-lg shadow-2xl border border-border-secondary z-30";
+  const positionClasses = position === 'top'
+    ? "top-full right-0 mt-2"
+    : "bottom-full right-0 mb-3";
+
   return (
     <div
       ref={popoverRef}
-      className="absolute top-full right-0 mt-2 w-72 bg-bg-secondary rounded-lg shadow-2xl border border-border-secondary z-30"
+      className={`${baseClasses} ${positionClasses}`}
       role="dialog"
       aria-modal="true"
       aria-labelledby="settings-heading"
+      onClick={(e) => e.stopPropagation()}
     >
       <div className="p-4 space-y-4">
         <h3 id="settings-heading" className="text-lg font-semibold text-text-primary">Typography Settings</h3>

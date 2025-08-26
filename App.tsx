@@ -2,18 +2,13 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import SyllabusView from './components/SyllabusView';
 import GlossaryView from './components/GlossaryView';
-import SettingsPopover from './components/SettingsPopover';
 import InfoModal from './components/InfoModal';
+import FloatingMenu from './components/FloatingMenu';
+import SettingsPopover from './components/SettingsPopover';
 import { syllabusData } from './data';
-import { GlossaryTerm } from './types';
+import { GlossaryTerm, TypographySettings } from './types';
 
 // --- Typography Settings Management ---
-interface TypographySettings {
-  fontSize: number; // in rem
-  lineHeight: number;
-  fontFamily: string;
-}
-
 const getInitialTypography = (): TypographySettings => {
   try {
     const saved = localStorage.getItem('typographySettings');
@@ -70,11 +65,11 @@ const App: React.FC = () => {
   // --- UI State ---
   const isMobile = useIsMobile();
   const [activePanel, setActivePanel] = useState<'syllabus' | 'glossary'>('syllabus');
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMobileTocOpen, setIsMobileTocOpen] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [typographySettings, setTypographySettings] = useState<TypographySettings>(getInitialTypography);
-
+  const [isSettingsPopoverOpen, setIsSettingsPopoverOpen] = useState(false);
+  
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
@@ -107,7 +102,6 @@ const App: React.FC = () => {
     root.style.setProperty('--font-base-rem', `${typographySettings.fontSize}rem`);
     root.style.setProperty('--font-line-height', String(typographySettings.lineHeight));
   }, [typographySettings]);
-
 
   useEffect(() => {
     fetch('./glossary.json')
@@ -174,72 +168,31 @@ const App: React.FC = () => {
   const sortedGlossaryData: GlossaryTerm[] = React.useMemo(() => {
     return [...glossary].sort((a, b) => a.term.localeCompare(b.term));
   }, [glossary]);
-
+  
   const handleTermClick = useCallback((termId: string) => {
     setActiveTermId(termId);
     if (isMobile) {
       setActivePanel('glossary');
     }
   }, [isMobile]);
-
-  const controlButtons = (
-    <>
-      <button
-        onClick={() => setIsInfoModalOpen(true)}
-        className="p-2 rounded-full bg-bg-interactive hover:bg-bg-interactive-hover transition-colors"
-        aria-label="About this app's features"
-      >
-        <span className="text-lg" aria-hidden="true">ℹ️</span>
-      </button>
-      <button
-        onClick={toggleDarkMode}
-        className="p-2 rounded-full bg-bg-interactive hover:bg-bg-interactive-hover transition-colors"
-        aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-      >
-        {isDarkMode ? '☀️' : '🌙'}
-      </button>
-      <div className="relative">
-        <button
-          onClick={() => setIsSettingsOpen(prev => !prev)}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-bg-interactive hover:bg-bg-interactive-hover transition-colors"
-          aria-label="Open typography settings"
-          aria-haspopup="dialog"
-          aria-expanded={isSettingsOpen}
-        >
-          <span className="text-xl" aria-hidden="true">🗚</span>
-        </button>
-        <SettingsPopover 
-          isOpen={isSettingsOpen} 
-          onClose={() => setIsSettingsOpen(false)}
-          settings={typographySettings}
-          setSettings={setTypographySettings}
-        />
-      </div>
-    </>
-  );
   
-  const mobileControlButtons = (
-    <>
-      <button
-        onClick={() => setIsMobileTocOpen(!isMobileTocOpen)}
-        className="p-2 rounded-full bg-bg-interactive hover:bg-bg-interactive-hover transition-colors"
-        aria-label="Toggle Table of Contents"
-        aria-expanded={isMobileTocOpen}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-      {controlButtons} 
-    </>
-  );
-
   const renderPanels = () => {
     if (isMobile) {
       return activePanel === 'syllabus' ? (
-          <SyllabusView chapters={syllabusData} glossary={glossary} onTermClick={handleTermClick} isMobile={true} isTocOpen={isMobileTocOpen} />
+          <SyllabusView 
+            chapters={syllabusData} 
+            glossary={glossary} 
+            onTermClick={handleTermClick} 
+            isMobile={true} 
+            isTocOpen={isMobileTocOpen}
+          />
         ) : (
-          <GlossaryView glossary={sortedGlossaryData} activeTermId={activeTermId} isMobile={true} isTocOpen={isMobileTocOpen} />
+          <GlossaryView 
+            glossary={sortedGlossaryData} 
+            activeTermId={activeTermId} 
+            isMobile={true} 
+            isTocOpen={isMobileTocOpen}
+          />
         );
     }
     
@@ -247,7 +200,11 @@ const App: React.FC = () => {
     return (
       <>
         <div className="flex-1 pr-3 min-w-0">
-            <SyllabusView chapters={syllabusData} glossary={glossary} onTermClick={handleTermClick} />
+            <SyllabusView 
+              chapters={syllabusData} 
+              glossary={glossary} 
+              onTermClick={handleTermClick} 
+            />
         </div>
         
         {!isMobile && (
@@ -261,7 +218,10 @@ const App: React.FC = () => {
         )}
 
         <div style={{ width: `${glossaryWidth}px` }} className="pl-3 flex-shrink-0">
-            <GlossaryView glossary={sortedGlossaryData} activeTermId={activeTermId} />
+            <GlossaryView 
+              glossary={sortedGlossaryData} 
+              activeTermId={activeTermId} 
+            />
         </div>
       </>
     );
@@ -270,37 +230,59 @@ const App: React.FC = () => {
 
   return (
     <div className="bg-bg-primary text-text-primary h-screen flex flex-col">
-      <header className="bg-bg-secondary shadow-md sticky top-0 z-40">
-        {isMobile ? (
-          <div className="p-2 flex justify-between items-center border-b border-border-primary">
-            <div className="flex-1 flex border bg-bg-tertiary border-border-secondary rounded-md p-1 space-x-1">
-              <button 
-                onClick={() => setActivePanel('syllabus')}
-                className={`w-full py-1 rounded-sm text-sm font-semibold transition-colors ${activePanel === 'syllabus' ? 'bg-bg-secondary shadow text-text-primary' : 'text-text-muted hover:bg-bg-interactive'}`}
-                aria-pressed={activePanel === 'syllabus'}
-              >
-                Syllabus
-              </button>
-              <button 
-                onClick={() => setActivePanel('glossary')}
-                className={`w-full py-1 rounded-sm text-sm font-semibold transition-colors ${activePanel === 'glossary' ? 'bg-bg-secondary shadow text-text-primary' : 'text-text-muted hover:bg-bg-interactive'}`}
-                aria-pressed={activePanel === 'glossary'}
-              >
-                Glossary
-              </button>
+       {isMobile && !isLoading && !error && (
+        <header className="bg-bg-secondary shadow-md p-2 flex justify-between items-center z-20 flex-shrink-0">
+          <div className="flex items-center border border-border-secondary rounded-lg">
+            <button 
+              onClick={() => setActivePanel('syllabus')}
+              className={`px-3 sm:px-4 py-1.5 text-sm font-semibold rounded-l-md transition-colors ${activePanel === 'syllabus' ? 'bg-bg-active text-text-accent' : 'text-text-primary hover:bg-bg-interactive'}`}
+              aria-pressed={activePanel === 'syllabus'}
+            >
+              Syllabus
+            </button>
+            <button 
+              onClick={() => setActivePanel('glossary')}
+              className={`px-3 sm:px-4 py-1.5 text-sm font-semibold rounded-r-md border-l border-border-secondary transition-colors ${activePanel === 'glossary' ? 'bg-bg-active text-text-accent' : 'text-text-primary hover:bg-bg-interactive'}`}
+              aria-pressed={activePanel === 'glossary'}
+            >
+              Glossary
+            </button>
+          </div>
+          
+          <div className="flex items-center gap-0 sm:gap-1">
+            <button
+                onClick={() => setIsMobileTocOpen(p => !p)}
+                className="p-2 rounded-md hover:bg-bg-interactive focus:outline-none focus:ring-2 focus:ring-ring-accent"
+                aria-label="Toggle Table of Contents"
+                aria-expanded={isMobileTocOpen}
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            
+            <button onClick={() => setIsInfoModalOpen(true)} className="p-2 rounded-md hover:bg-bg-interactive focus:outline-none focus:ring-2 focus:ring-ring-accent" aria-label="About this app's features">
+                <span aria-hidden="true">ℹ️</span>
+            </button>
+
+            <button onClick={toggleDarkMode} className="p-2 rounded-md hover:bg-bg-interactive focus:outline-none focus:ring-2 focus:ring-ring-accent" aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}>
+                {isDarkMode ? '☀️' : '🌙'}
+            </button>
+
+            <div className="relative">
+                <button onClick={() => setIsSettingsPopoverOpen(p => !p)} className="p-2 rounded-md hover:bg-bg-interactive focus:outline-none focus:ring-2 focus:ring-ring-accent" aria-label="Open typography settings" aria-haspopup="dialog" aria-expanded={isSettingsPopoverOpen}>
+                    <span aria-hidden="true">🗚</span>
+                </button>
+                <SettingsPopover 
+                    isOpen={isSettingsPopoverOpen} 
+                    onClose={() => setIsSettingsPopoverOpen(false)}
+                    settings={typographySettings}
+                    setSettings={setTypographySettings}
+                    position="top"
+                />
             </div>
-            <div className="flex items-center gap-2 ml-3">{mobileControlButtons}</div>
           </div>
-        ) : (
-          <div className="p-4 flex justify-between items-center">
-            <h1 className="text-2xl md:text-3xl font-bold text-text-accent">
-              Interactive Syllabus & Glossary
-            </h1>
-            <div className="flex items-center gap-3">{controlButtons}</div>
-          </div>
-        )}
-      </header>
-      <main className="p-4 md:p-8 flex-1 flex flex-col min-h-0">
+        </header>
+      )}
+      <main className="md:p-8 flex-1 flex flex-col min-h-0">
         {isLoading && <div className="text-center text-lg">Loading Content...</div>}
         {error && <div className="text-center text-lg text-text-destructive">{error}</div>}
         {!isLoading && !error && (
@@ -310,6 +292,15 @@ const App: React.FC = () => {
         )}
       </main>
       <InfoModal isOpen={isInfoModalOpen} onClose={() => setIsInfoModalOpen(false)} />
+       {!isMobile && !isLoading && !error && (
+        <FloatingMenu
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          typographySettings={typographySettings}
+          setTypographySettings={setTypographySettings}
+          onInfoClick={() => setIsInfoModalOpen(true)}
+        />
+      )}
     </div>
   );
 };
